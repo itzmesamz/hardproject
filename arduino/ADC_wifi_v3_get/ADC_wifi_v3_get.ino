@@ -20,11 +20,9 @@
 
 long randNumber; //for generating random number
 
-File logFile;
 String infile="";
 #define FTPWRITE
 
-File fh;
 //You will use TP-LINK (configured as Access Point)
 char ssid[] = "edmi";     //  your network SSID (name) 
 char pass[] = "jesusisback";  // your network password
@@ -32,7 +30,7 @@ int status = WL_IDLE_STATUS;     // the Wifi radio's status
 
 
 // change to your server
-IPAddress server( 192, 168, 43, 147); //ip address of your server 
+char server[] = "192.168.43.147";
 int port = 3000;
                                       
                                       
@@ -46,7 +44,7 @@ String fileName=""; //declare filename as a string, random generate its name and
 uint16_t values[SAMPLES][CHANNELS];
 unsigned int i,j,l;
 uint16_t Buff_Temp;
-uint16_t treshold = 100;
+uint16_t treshold = 0;
 unsigned int rms;
 float rms2=0;
 float rmsmean[10];
@@ -219,16 +217,21 @@ float rmscalc(uint16_t valbuf[SAMPLES][CHANNELS],int ch){
   }}
 
 bool sendData() {
-  if (!client.connect(server,port)) {
-    Serial.println(F("Command connection failed"));
-    return false;
-  }
-  
-  Serial.println(F("Command connected"));
+  char contentType[] = "application/octet-stream";
+  client.post("/", contentType, sizeof(values), (byte*) values);
 
+  int statusCode = client.responseStatusCode();
+  String response = client.responseBody();
+  client.flush();
+  client.stop();
   
+  Serial.print("Status code: ");
+  Serial.println(statusCode);
+  Serial.print("Response: ");
+  Serial.println(response);
+  Serial.println("Wait two seconds");
 
-  return true;
+  return statusCode == 200;
 }
 
 void printWifiData() {
