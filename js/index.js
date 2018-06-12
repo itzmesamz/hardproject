@@ -2,9 +2,9 @@ var express = require('express')
 
 var app = express()
 
-app.get('/', (req, res) => {
-    res.send(req.query)
-    console.log(req.query)
+app.post('/', (req, res) => {
+    res.send('hello world')
+    console.log('hello world')
 })
 
 app.listen(3000, () => {
